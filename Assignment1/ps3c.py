@@ -1,21 +1,22 @@
 # ---------- get all parameters from the user ----------
 starting_salary   = float(input("Enter the starting annual salary: "))
-house_cost        = float(input("Enter the house cost (e.g., 1000000): "))
-down_payment_pct  = float(input("Enter the down‑payment percent (as a decimal, e.g., 0.25): "))
+house_cost        = float(input("Enter the house cost: "))
+down_payment  = float(input("Enter the down‑payment percent: "))
 annual_return     = float(input("Enter the annual return on investment (as a decimal, e.g., 0.04): "))
-semi_raise        = float(input("Enter the semi‑annual raise (as a decimal, e.g., 0.07): "))
-months_target     = int(input("Enter the number of months to save (e.g., 36): "))
-tolerance         = float(input("Enter the tolerance in dollars (e.g., 100): "))
+semi_raise        = float(input("Enter the semi‑annual raise: "))
+
 
 # ---------- derived constants ----------
-down_payment   = down_payment_pct * house_cost
-monthly_return = annual_return / 12          # monthly compounding
+down_payment   = down_payment * house_cost
+monthly_return = annual_return / 12 
+monthly_salary= starting_salary/12
+
 
 # ---------- helper: simulate 36‑month savings for a given rate ----------
 def simulate(rate):
     salary = starting_salary
     saved  = 0.0
-    for m in range(1, months_target + 1):
+    for m in range(1, 37):
         saved += (salary / 12) * rate          # monthly contribution
         saved += saved * monthly_return        # interest earned
         if m % 6 == 0:                         # apply raise every 6 months
