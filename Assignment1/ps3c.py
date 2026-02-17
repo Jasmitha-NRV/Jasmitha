@@ -1,58 +1,34 @@
-# ---------- get all parameters from the user ----------
-starting_salary   = float(input("Enter the starting annual salary: "))
-house_cost        = float(input("Enter the house cost: "))
-down_payment  = float(input("Enter the down‑payment percent: "))
-annual_return     = float(input("Enter the annual return on investment (as a decimal, e.g., 0.04): "))
-semi_raise        = float(input("Enter the semi‑annual raise: "))
+# Getting the required input from the user
+starting_salary = float(input("Enter the starting salary: "))
+down_payment = 1000000 * 0.25
+Raise = 0.07
+ROI = 0.04
+MONTHS = 36
 
 
-# ---------- derived constants ----------
-down_payment   = down_payment * house_cost
-monthly_return = annual_return / 12 
-monthly_salary= starting_salary/12
-
-
-# ---------- helper: simulate 36‑month savings for a given rate ----------
-def simulate(rate):
+def check_savings(rate):       
+    savings = 0.0
     salary = starting_salary
-    saved  = 0.0
-    for m in range(1, 37):
-        saved += (salary / 12) * rate          # monthly contribution
-        saved += saved * monthly_return        # interest earned
-        if m % 6 == 0:                         # apply raise every 6 months
-            salary *= (1 + semi_raise)
-    return saved
+    for m in range(1, MONTHS + 1):
+        savings += savings * (ROI / 12) + (salary / 12) * (rate / 10000)
+        if m % 6 == 0: salary += salary * Raise
+    return savings
 
-# ---------- first, see if the goal is even possible ----------
-if simulate(1.0) < down_payment - tolerance:
-    print("It is not possible to pay the down payment in the given time.")
-else:
-    # ---------- bisection search ----------
-    low   = 0.0          # 0 % of salary saved
-    high  = 1.0          # 100 % of salary saved
-    steps = 0
-
-    while True:
-        steps += 1
-        guess = (low + high) / 2
-        saved = simulate(guess)
-
-        # difference between what we saved and what we need
-        diff = saved - down_payment
-
-        # stop when we are within the $tolerance window
-        if diff <= tolerance and diff >= -tolerance:
-            break                     # success
-
-        # otherwise shrink the interval
-        if diff < -tolerance:         # saved too little → need a larger rate
-            low = guess
-        else:                         # saved too much → rate is too high
-            high = guess
-
-        # safety net: if interval gets extremely tiny, stop anyway
-        if high - low < 1e-7:
-            break
-
-    print(f"Best savings rate: {guess:.4f}")
-    print(f"Steps in bisection search: {steps}")
+# Using bisection search
+low=0 
+high=10000
+steps = 0
+while low <= high:
+    steps += 1
+    mid = (low + high) // 2
+    total_saved = check_savings(mid)
+    
+    if abs(total_saved - down_payment) <= 100: 
+        print(f"Best savings rate: {mid/10000:.4f}\nSteps in bisection search: {steps}")
+        break
+    elif total_saved < down_payment: low = mid + 1
+    else: high = mid - 1
+    
+    if low > 10000: 
+        print("It is not possible to pay the down payment in three years.")
+        break
